@@ -24,7 +24,8 @@ public class SecurityConfiguration {
                 .csrf().disable()
                 .headers().frameOptions().disable()
                 .and()
-                .authorizeRequests()
+                // authorizeRequests
+                .authorizeHttpRequests()
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -64,8 +65,6 @@ public class SecurityConfiguration {
         return users;
     }
      */
-
-
 
     /*
     // 独自に定義したテーブルを使う
