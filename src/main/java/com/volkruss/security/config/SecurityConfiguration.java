@@ -19,17 +19,17 @@ public class SecurityConfiguration {
     // ログイン後は/homeに遷移させる
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-                .csrf().disable()
-                .headers().frameOptions().disable()
-                .and()
-                // authorizeRequests
-                .authorizeHttpRequests()
-                .antMatchers("/h2-console/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .formLogin().defaultSuccessUrl("/home");
+        http.csrf().disable();
+        http.headers(header -> {
+            header.frameOptions().disable();
+        });
+        http.authorizeHttpRequests(authorize -> {
+            authorize.antMatchers("/h2-console/**").permitAll()
+                    .anyRequest().authenticated();
+        });
+        http.formLogin(form -> {
+            form.defaultSuccessUrl("/home");
+        });
         return http.build();
     }
 
