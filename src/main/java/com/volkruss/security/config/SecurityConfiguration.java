@@ -1,21 +1,39 @@
 package com.volkruss.security.config;
 
+// 不要なインポートがありますので注意
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
 import javax.sql.DataSource;
 
 @Configuration
 public class SecurityConfiguration {
-
     @Autowired
     private DataSource dataSource;
-
     // ログイン後は/homeに遷移させる
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -30,18 +48,22 @@ public class SecurityConfiguration {
         http.formLogin(form -> {
             form.defaultSuccessUrl("/home");
         });
+        // 追加
+        http.addFilterAfter(new RedirectLoginUserFilter(),UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     // 事前に用意したレコードでログインする
     // データベースに登録されているレコードのパスワードがハッシュ化されていること
     // また認可テーブルにも該当のレコードが存在すること
+    /*
     @Bean
     public UserDetailsManager userDetailsService(){
         // 既存User : misaka/mikoto
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(this.dataSource);
         return users;
     }
+     */
 
 
     // 以下はコメントアウトされていますが全て動きますので
@@ -64,7 +86,7 @@ public class SecurityConfiguration {
         users.createUser(user);
         return users;
     }
-     */
+    */
 
     /*
     // 独自に定義したテーブルを使う
@@ -89,7 +111,6 @@ public class SecurityConfiguration {
      */
 
 
-    /*
     // インメモリ認証
     @Bean
     public InMemoryUserDetailsManager userDetailsService(){
@@ -102,5 +123,4 @@ public class SecurityConfiguration {
                 .build();
         return new InMemoryUserDetailsManager(user);
     }
-     */
 }
